@@ -5,7 +5,7 @@
     "transform"
   ],
   "description": "Converts shapes of classes on videos (e.g. polygon to bitmap) and all corresponding objects",
-  "docker_image": "supervisely/base-py-sdk:6",
+  "docker_image": "supervisely/base-py-sdk:6.1.90",
   "main_script": "src/main.py",
   "gui_template": "src/gui.html",
   "modal_template": "src/modal.html",
@@ -14,7 +14,7 @@
   "icon": "https://i.imgur.com/TxR0dfX.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
-    "target": ["video_project"],
+    "target": ["videos_project"],
     "context_category": "Transform"
   }
 }
