@@ -4,16 +4,39 @@ from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 from supervisely_lib.annotation.json_geometries_map import GET_GEOMETRY_FROM_STR
 
 
-def convert_annotation(ann: sly.Annotation, dst_meta):
-    new_labels = []
-    for lbl in ann.labels:
-        new_cls = dst_meta.obj_classes.get(lbl.obj_class.name)
-        if lbl.obj_class.geometry_type == new_cls.geometry_type:
-            new_labels.append(lbl)
+def convert_annotation(ann: sly.VideoAnnotation, dst_meta):
+
+    frames = []
+    new_objects = {}
+
+    for curr_object in ann.objects:
+        curr_obj_class = curr_object.obj_class
+        new_obj_class = dst_meta.obj_classes.get(curr_obj_class.name)
+        if curr_obj_class.geometry_type == new_obj_class.geometry_type:
+            new_objects[curr_object._key] = curr_object
         else:
-            converted_labels = lbl.convert(new_cls)
-            new_labels.extend(converted_labels)
-    return ann.clone(labels=new_labels)
+            new_object = sly.VideoObject(obj_class=new_obj_class, tags=curr_object.tags)
+            new_objects[curr_object._key] = new_object
+
+    for curr_frame in ann.frames:
+        new_frame_figures = []
+        for curr_figure in curr_frame.figures:
+            curr_figure_obj_class = curr_figure.video_object.obj_class
+            new_obj_class = dst_meta.obj_classes.get(curr_figure_obj_class.name)
+            if curr_figure_obj_class.geometry_type == new_obj_class.geometry_type:
+                new_frame_figures.append(curr_figure)
+            else:
+                new_geometries = curr_figure.geometry.convert(new_obj_class.geometry_type)
+                for new_geometry in new_geometries:
+                    new_figure = curr_figure.clone(video_object=new_objects[curr_figure.video_object._key], geometry=new_geometry)
+                    new_frame_figures.append(new_figure)
+        new_frame = sly.Frame(curr_frame.index, new_frame_figures)
+        frames.append(new_frame)
+
+    new_frames_collection = sly.FrameCollection(frames)
+    new_objects = sly.VideoObjectCollection(list(new_objects.values()))
+
+    return ann.clone(objects=new_objects, frames=new_frames_collection)
 
 
 @g.my_app.callback("convert")
