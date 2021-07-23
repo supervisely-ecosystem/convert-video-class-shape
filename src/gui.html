@@ -1,0 +1,111 @@
+<div id="import-pascal-voc">
+
+    <sly-style>
+        #import-pascal-voc .centered-tabs .el-tabs__nav { width: 100%;}
+        #import-pascal-voc .centered-tabs .el-tabs__nav .el-tabs__item {
+        width: 50%;
+        text-align: center;
+        }
+
+        #import-pascal-voc .el-tabs.el-tabs-cards .el-radio {
+        display: flex;
+        align-items: start;
+        /*margin-bottom: 10px;*/
+        margin-left: 0;
+        white-space: normal;
+        }
+
+        #import-pascal-voc .el-tabs.el-tabs-cards .el-radio__label div {
+        color: #7f858e;
+        font-size: 13px;
+        }
+
+        #import-pascal-voc .el-tabs.el-tabs-cards { border-radius: 4px; box-shadow: none; }
+        #import-pascal-voc .el-tabs.el-tabs-cards .el-tabs__header { background-color: #f6fafd; }
+        #import-pascal-voc .el-tabs.el-tabs-cards .el-tabs__nav { float: none; display: flex; justify-content:
+        space-between; }
+        #import-pascal-voc .el-tabs.el-tabs-cards .el-tabs__item { flex: 1; margin-bottom: -3px; padding: 9px 16px 13px;
+        height: auto; line-height: normal; border-radius: 4px; }
+    </sly-style>
+
+    <sly-card class="mt15" title="Import Mode" subtitle="Choose whether to import public or custom data">
+        <el-tabs class="el-tabs-cards" type="border-card">
+            <el-tab-pane label="Public Data" name="public">
+                <el-radio slot="label" label="public">
+                    Public Data
+                    <div>Recommended hyperparameters for training from scratch</div>
+                </el-radio>
+                <sly-field title="Check Pascal Datasets to import"
+                           description="Select which Pascal dataset you want to import.">
+                    <div class="mt5">
+                        <el-checkbox label="train"></el-checkbox>
+                    </div>
+                    <div class="mt5">
+                        <el-checkbox label="val"></el-checkbox>
+                    </div>
+                    <div class="mt5">
+                        <el-checkbox label="test"></el-checkbox>
+                    </div>
+                    <div class="mt7">
+                        <sly-field title="Sample Percent"
+                                   description="Select which percent of Pascal data you want to import.">
+                            <el-slider :min="0" :max="100" :step="1" show-input
+                                       style="width: 500px;"
+                                       show-input>
+                            </el-slider>
+                        </sly-field>
+                    </div>
+                </sly-field>
+
+            </el-tab-pane>
+            <el-tab-pane label="Custom Data">
+                <el-radio slot="label" label="custom">
+                    Custom Data
+                    <div>Recommended hyperparameters for training from scratch</div>
+                </el-radio>
+                <sly-field title="Path to Custom Data"
+                           description="Copy path to your Pascal custom data from Team Files and paste it to input field.">
+                    <el-input placeholder="Path to custom data in Team Files"></el-input>
+                </sly-field>
+            </el-tab-pane>
+        </el-tabs>
+    </sly-card>
+
+    <div class="mt10">
+        <sly-card title="Output project">
+
+            <sly-select-team-workspace :team-id.sync="state.teamId"
+                                       :workspace-id.sync="state.workspaceId"></sly-select-team-workspace>
+
+            <sly-field title="Project Name"
+                       description="Name of the resulting Project.">
+                <el-input placeholder="my_Project"></el-input>
+            </sly-field>
+
+            <div class="fflex mt10">
+                <el-button
+                        :disabled="!state.resultProjectId"
+                        type="primary"
+                        @click="command('merge')"
+                        v-if="data.started === false"
+                >
+                    <i class="zmdi zmdi-play" style="margin-right: 5px"></i> Run
+                </el-button>
+                <div class="ml5" v-if="!state.resultProjectId" style="color: red"> Result project undefined
+                </div>
+            </div>
+            <sly-field v-if="data.createdProjectName" title="" description="Project">
+                <a slot="title" target="_blank"
+                   :href="`/projects/${data.createdProjectId}/datasets`">{{data.createdProjectName}}</a>
+                <sly-icon slot="icon" :options="{ color: '#2cd26e', bgColor: '#d8f8e7', rounded: false }">
+                    <i class="zmdi zmdi-collection-folder-image"></i>
+                </sly-icon>
+            </sly-field>
+            <div v-if="data.started === true && !data.createdProjectName">
+                <div>{{data.progressMessage}} {{data.progressCurrent}} / {{data.progressTotal}}</div>
+                <el-progress :percentage="data.progress"></el-progress>
+            </div>
+        </sly-card>
+    </div>
+
+</div>
