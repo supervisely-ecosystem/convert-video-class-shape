@@ -1,111 +1,103 @@
-<div id="import-pascal-voc">
-
+<div id="app_convert_class_shape">
     <sly-style>
-        #import-pascal-voc .centered-tabs .el-tabs__nav { width: 100%;}
-        #import-pascal-voc .centered-tabs .el-tabs__nav .el-tabs__item {
-        width: 50%;
+        #app_convert_class_shape .color-icon {
+        display:inline-block;
+        border-radius:50%;
+        background: red;
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
+        }
+
+        #app_convert_class_shape .shape-icon {
+        display:inline-block;
+        background-color: #ffebe3;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        line-height: 32px;
+        font-size: 16px;
+        color: #ff8461;
         text-align: center;
+        margin-right: 5px;
         }
 
-        #import-pascal-voc .el-tabs.el-tabs-cards .el-radio {
+        #app_convert_class_shape .shape-icon .icons8-polygon {
+        font-size: 8px;
+        }
+
+        #app_convert_class_shape .icon-cell {
         display: flex;
-        align-items: start;
-        /*margin-bottom: 10px;*/
-        margin-left: 0;
-        white-space: normal;
+        align-items: center;
         }
-
-        #import-pascal-voc .el-tabs.el-tabs-cards .el-radio__label div {
-        color: #7f858e;
-        font-size: 13px;
-        }
-
-        #import-pascal-voc .el-tabs.el-tabs-cards { border-radius: 4px; box-shadow: none; }
-        #import-pascal-voc .el-tabs.el-tabs-cards .el-tabs__header { background-color: #f6fafd; }
-        #import-pascal-voc .el-tabs.el-tabs-cards .el-tabs__nav { float: none; display: flex; justify-content:
-        space-between; }
-        #import-pascal-voc .el-tabs.el-tabs-cards .el-tabs__item { flex: 1; margin-bottom: -3px; padding: 9px 16px 13px;
-        height: auto; line-height: normal; border-radius: 4px; }
     </sly-style>
 
-    <sly-card class="mt15" title="Import Mode" subtitle="Choose whether to import public or custom data">
-        <el-tabs class="el-tabs-cards" type="border-card">
-            <el-tab-pane label="Public Data" name="public">
-                <el-radio slot="label" label="public">
-                    Public Data
-                    <div>Recommended hyperparameters for training from scratch</div>
-                </el-radio>
-                <sly-field title="Check Pascal Datasets to import"
-                           description="Select which Pascal dataset you want to import.">
-                    <div class="mt5">
-                        <el-checkbox label="train"></el-checkbox>
-                    </div>
-                    <div class="mt5">
-                        <el-checkbox label="val"></el-checkbox>
-                    </div>
-                    <div class="mt5">
-                        <el-checkbox label="test"></el-checkbox>
-                    </div>
-                    <div class="mt7">
-                        <sly-field title="Sample Percent"
-                                   description="Select which percent of Pascal data you want to import.">
-                            <el-slider :min="0" :max="100" :step="1" show-input
-                                       style="width: 500px;"
-                                       show-input>
-                            </el-slider>
-                        </sly-field>
-                    </div>
+    <el-row :gutter="20" type="flex">
+        <el-col :span="8">
+            <sly-card title="Input">
+                <sly-field title="" description="Project">
+                    <a slot="title" target="_blank"
+                       :href="`/projects/${data.projectId}/datasets`">{{data.projectName}}</a>
+                    <sly-icon slot="icon" :options="{ imageUrl: `${data.projectPreviewUrl}` }"/>
                 </sly-field>
-
-            </el-tab-pane>
-            <el-tab-pane label="Custom Data">
-                <el-radio slot="label" label="custom">
-                    Custom Data
-                    <div>Recommended hyperparameters for training from scratch</div>
-                </el-radio>
-                <sly-field title="Path to Custom Data"
-                           description="Copy path to your Pascal custom data from Team Files and paste it to input field.">
-                    <el-input placeholder="Path to custom data in Team Files"></el-input>
+            </sly-card>
+        </el-col>
+        <el-col :span="16" style="flex: 1">
+            <sly-card title="Output" style="height: 100%">
+                <sly-field v-if="data.progress === 100" title="" description="New project has been successfully created">
+                    <a slot="title" target="_blank" :href="`/projects/${data.resultProjectId}/datasets`">{{data.resultProject}}</a>
+                    <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
                 </sly-field>
-            </el-tab-pane>
-        </el-tabs>
-    </sly-card>
-
-    <div class="mt10">
-        <sly-card title="Output project">
-
-            <sly-select-team-workspace :team-id.sync="state.teamId"
-                                       :workspace-id.sync="state.workspaceId"></sly-select-team-workspace>
-
-            <sly-field title="Project Name"
-                       description="Name of the resulting Project.">
-                <el-input placeholder="my_Project"></el-input>
-            </sly-field>
-
-            <div class="fflex mt10">
-                <el-button
-                        :disabled="!state.resultProjectId"
-                        type="primary"
-                        @click="command('merge')"
-                        v-if="data.started === false"
-                >
+                <el-progress v-if="data.started === true && data.progress !== 100" :percentage="data.progress"></el-progress>
+                <el-button type="primary" @click="command('convert')" v-if="data.started === false">
                     <i class="zmdi zmdi-play" style="margin-right: 5px"></i> Run
                 </el-button>
-                <div class="ml5" v-if="!state.resultProjectId" style="color: red"> Result project undefined
-                </div>
-            </div>
-            <sly-field v-if="data.createdProjectName" title="" description="Project">
-                <a slot="title" target="_blank"
-                   :href="`/projects/${data.createdProjectId}/datasets`">{{data.createdProjectName}}</a>
-                <sly-icon slot="icon" :options="{ color: '#2cd26e', bgColor: '#d8f8e7', rounded: false }">
-                    <i class="zmdi zmdi-collection-folder-image"></i>
-                </sly-icon>
-            </sly-field>
-            <div v-if="data.started === true && !data.createdProjectName">
-                <div>{{data.progressMessage}} {{data.progressCurrent}} / {{data.progressTotal}}</div>
-                <el-progress :percentage="data.progress"></el-progress>
-            </div>
-        </sly-card>
-    </div>
+            </sly-card>
+        </el-col>
+    </el-row>
 
+    <sly-card title="Shapes transformation"
+              subtitle="Define destination shapes for one or several classes"
+              style="margin-top: 10px">
+        <el-table class="ultra-table"
+                  :data="data.table"
+                  style="width: 100%"
+                  :default-sort="{prop: 'name', order: 'ascending'}">
+            <el-table-column prop="name" label="Name" sortable width="180"></el-table-column>
+            <el-table-column prop="color" label="Color" width="180">
+                <template slot-scope="{ row }">
+                    <b class="color-icon" :style="{background: row.color}"></b>{{row.color}}
+                </template>
+            </el-table-column>
+            <el-table-column prop="shape" label="Shape" width="180">
+                <div slot-scope="{ row }" class="icon-cell">
+                    <div class="shape-icon"
+                         :style="{'background-color':row.shapeIcon.bg, 'color': row.shapeIcon.color}">
+                        <i :class="[row.shapeIcon.icon]"></i>
+                    </div>
+                    {{row.shape}}
+                </div>
+            </el-table-column>
+            <el-table-column prop="convertTo" label="convert to">
+                <template slot-scope="{ row }">
+                    <el-select v-model="state.selectors[row.name]"
+                               :disabled="data.started === true || row.convertTo.length === 1">
+                        <el-option
+                                v-for="item in row.convertTo"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                </template>
+            </el-table-column>
+        </el-table>
+    </sly-card>
+
+    <el-dialog :visible.sync="state.showWarningDialog" size="tiny" title="Warning">
+        <span>Please, define at least one transformation</span>
+        <span class="dialog-footer" slot="footer">
+            <el-button @click="state.showWarningDialog = false" type="primary">OK</el-button>
+        </span>
+    </el-dialog>
 </div>
