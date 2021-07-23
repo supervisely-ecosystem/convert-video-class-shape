@@ -104,11 +104,11 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
             new_vid_id = new_vid_info.id
             api.video.annotation.append(new_vid_id, new_ann, key_id_map=key_id_map)
 
-            current_progress += len(vid_infos_all)
+            current_progress += 1#len(vid_infos_all)
             api.task.set_field(task_id, "data.progress", int(current_progress * 100 / total_progress))
             ds_progress.iter_done_report()
 
-    api.task.set_output_project(task_id, dst_project.id, dst_project.name)
+    #api.task.set_output_project(task_id, dst_project.id, dst_project.name)
 
     # to get correct "reference_image_url"
     res_project = api.project.get_info_by_id(dst_project.id)
