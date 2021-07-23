@@ -15,6 +15,6 @@
   "icon_background": "#FFFFFF",
   "context_menu": {
     "target": ["video_project"],
-    "context_category": "Transform"
+    "context_root": "Download as"
   }
 }
