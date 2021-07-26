@@ -91,7 +91,9 @@
                     <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
                 </sly-field>
 
-                <p v-if="data.started === false" class="card-text">Create output project: </p>
+                <sly-field title="New project name:" description="If name of new project not specified, result project name will have original project name with (new shapes) suffix">
+                    <el-input v-if="data.started === false" v-model="state.newProjectName" placeholder="Input new project name"></el-input>
+                </sly-field>
 
 
                 <div class="ml10" v-if="data.started === true && data.totalProgress2 !== 0 && data.progress !== 100">

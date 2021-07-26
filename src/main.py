@@ -52,6 +52,9 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
     src_project = api.project.get_info_by_id(g.PROJECT_ID)
     src_meta_json = api.project.get_meta(src_project.id)
     src_meta = sly.ProjectMeta.from_json(src_meta_json)
+    new_project_name = state['newProjectName']
+    if not new_project_name:
+        new_project_name = src_project.name + "(new shapes)"
 
     new_classes = []
     need_action = False
@@ -79,7 +82,7 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
         api.task.set_fields(task_id, fields)
         return
 
-    dst_project = api.project.create(src_project.workspace_id, src_project.name + "(new shapes)",
+    dst_project = api.project.create(src_project.workspace_id, new_project_name,
                                      type=sly.ProjectType.VIDEOS,
                                      description="new shapes",
                                      change_name_if_conflict=True)
@@ -144,6 +147,7 @@ def main():
     data["resultProject"] = ""
 
     state["showWarningDialog"] = False
+    state["newProjectName"] = None
     # state["showFinishDialog"] = False
 
     ui.init_context(data, g.TEAM_ID, g.WORKSPACE_ID)
