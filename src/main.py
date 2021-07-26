@@ -4,7 +4,7 @@ from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 from supervisely_lib.annotation.json_geometries_map import GET_GEOMETRY_FROM_STR
 
 
-def convert_annotation(ann: sly.VideoAnnotation, dst_meta):
+def convert_annotation(api, task_id, ann: sly.VideoAnnotation, dst_meta):
 
     frames = []
     new_objects = {}
@@ -18,6 +18,9 @@ def convert_annotation(ann: sly.VideoAnnotation, dst_meta):
             new_object = sly.VideoObject(obj_class=new_obj_class, tags=curr_object.tags)
             new_objects[curr_object._key] = new_object
 
+    total_progress = len(ann.frames)
+    ds_progress = sly.Progress('Processing:', total_cnt=total_progress)
+    current_progress = 0
     for curr_frame in ann.frames:
         new_frame_figures = []
         for curr_figure in curr_frame.figures:
@@ -32,6 +35,11 @@ def convert_annotation(ann: sly.VideoAnnotation, dst_meta):
                     new_frame_figures.append(new_figure)
         new_frame = sly.Frame(curr_frame.index, new_frame_figures)
         frames.append(new_frame)
+
+        current_progress += 1
+        if current_progress % 50 == 0:
+            ds_progress.iter_done_report()
+            api.task.set_field(task_id, "data.progress", current_progress)
 
     new_frames_collection = sly.FrameCollection(frames)
     new_objects = sly.VideoObjectCollection(list(new_objects.values()))
@@ -83,9 +91,9 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
     dst_meta = src_meta.clone(obj_classes=sly.ObjClassCollection(new_classes))
     api.project.update_meta(dst_project.id, dst_meta.to_json())
 
-    total_progress = api.project.get_images_count(src_project.id)
-    current_progress = 0
-    ds_progress = sly.Progress('Processing:', total_cnt=total_progress)
+    #total_progress = api.project.get_images_count(src_project.id)
+    #current_progress = 0
+    #ds_progress = sly.Progress('Processing:', total_cnt=total_progress)
     for ds_info in api.dataset.get_list(src_project.id):
         dst_dataset = api.dataset.create(dst_project.id, ds_info.name)
 
@@ -98,15 +106,15 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
 
             ann_info = api.video.annotation.download(vid_id)
             ann = sly.VideoAnnotation.from_json(ann_info, src_meta, key_id_map)
-            new_ann = convert_annotation(ann, dst_meta)
+            new_ann = convert_annotation(api, task_id, ann, dst_meta)
 
             new_vid_info = api.video.upload_hash(dst_dataset.id, vid_name, vid_hash)
             new_vid_id = new_vid_info.id
             api.video.annotation.append(new_vid_id, new_ann, key_id_map=key_id_map)
 
-            current_progress += 1#len(vid_infos_all)
-            api.task.set_field(task_id, "data.progress", int(current_progress * 100 / total_progress))
-            ds_progress.iter_done_report()
+            #current_progress += 1
+            #api.task.set_field(task_id, "data.progress", int(current_progress * 100 / total_progress))
+            #ds_progress.iter_done_report()
 
     #api.task.set_output_project(task_id, dst_project.id, dst_project.name)
 
