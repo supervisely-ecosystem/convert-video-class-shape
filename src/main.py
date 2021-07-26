@@ -11,13 +11,12 @@ def convert_annotation(api, task_id, ann: sly.VideoAnnotation, dst_meta):
     new_objects = {}
 
     for curr_object in ann.objects:
-        curr_obj_class = curr_object.obj_class
-        new_obj_class = dst_meta.obj_classes.get(curr_obj_class.name)
-        if curr_obj_class.geometry_type == new_obj_class.geometry_type:
-            new_objects[curr_object._key] = curr_object
+        new_obj_class = dst_meta.obj_classes.get(curr_object.obj_class.name)
+        if curr_object.obj_class.geometry_type == new_obj_class.geometry_type:
+            new_objects[curr_object.key] = curr_object
         else:
             new_object = sly.VideoObject(obj_class=new_obj_class, tags=curr_object.tags)
-            new_objects[curr_object._key] = new_object
+            new_objects[curr_object.key] = new_object
 
     progress_items_cb = ui.get_progress_cb(api, task_id, 1, "Convert frames", len(ann.frames))
     all_frames = [frame for frame in ann.frames]
