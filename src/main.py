@@ -2,7 +2,33 @@ import globals as g
 import supervisely_lib as sly
 from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 from supervisely_lib.annotation.json_geometries_map import GET_GEOMETRY_FROM_STR
-import ui
+from functools import partial
+
+
+def _set_progress(index, api, task_id, message, current_label, total_label, current, total):
+    fields = [
+        {"field": f"data.progressName{index}", "payload": message},
+        {"field": f"data.currentProgressLabel{index}", "payload": current_label},
+        {"field": f"data.totalProgressLabel{index}", "payload": total_label},
+        {"field": f"data.currentProgress{index}", "payload": current},
+        {"field": f"data.totalProgress{index}", "payload": total},
+    ]
+    api.task.set_fields(task_id, fields)
+
+
+def update_progress(count, index, api: sly.Api, task_id, progress: sly.Progress):
+    count = min(count, progress.total - progress.current)
+    progress.iters_done(count)
+    if progress.need_report():
+        progress.report_progress()
+        _set_progress(index, api, task_id, progress.message, progress.current_label, progress.total_label, progress.current, progress.total)
+
+
+def get_progress_cb(api, task_id, index, message, total, is_size=False, func=update_progress):
+    progress = sly.Progress(message, total, is_size=is_size)
+    progress_cb = partial(func, index=index, api=api, task_id=task_id, progress=progress)
+    progress_cb(0)
+    return progress_cb
 
 
 def convert_annotation(api, task_id, ann: sly.VideoAnnotation, dst_meta):
@@ -18,26 +44,23 @@ def convert_annotation(api, task_id, ann: sly.VideoAnnotation, dst_meta):
             new_object = sly.VideoObject(obj_class=new_obj_class, tags=curr_object.tags)
             new_objects[curr_object.key] = new_object
 
-    progress_items_cb = ui.get_progress_cb(api, task_id, 1, "Convert frames", len(ann.frames))
-    all_frames = [frame for frame in ann.frames]
+    progress_items_cb = get_progress_cb(api, task_id, 1, "Convert frames", len(ann.frames))
+    for curr_frame in ann.frames:
+        new_frame_figures = []
+        for curr_figure in curr_frame.figures:
+            curr_figure_obj_class = curr_figure.video_object.obj_class
+            new_obj_class = dst_meta.obj_classes.get(curr_figure_obj_class.name)
+            if curr_figure_obj_class.geometry_type == new_obj_class.geometry_type:
+                new_frame_figures.append(curr_figure)
+            else:
+                new_geometries = curr_figure.geometry.convert(new_obj_class.geometry_type)
+                for new_geometry in new_geometries:
+                    new_figure = curr_figure.clone(video_object=new_objects[curr_figure.video_object.key], geometry=new_geometry)
+                    new_frame_figures.append(new_figure)
+        new_frame = sly.Frame(curr_frame.index, new_frame_figures)
+        frames.append(new_frame)
 
-    for batch in sly.batched(all_frames):
-        for curr_frame in batch:
-            new_frame_figures = []
-            for curr_figure in curr_frame.figures:
-                curr_figure_obj_class = curr_figure.video_object.obj_class
-                new_obj_class = dst_meta.obj_classes.get(curr_figure_obj_class.name)
-                if curr_figure_obj_class.geometry_type == new_obj_class.geometry_type:
-                    new_frame_figures.append(curr_figure)
-                else:
-                    new_geometries = curr_figure.geometry.convert(new_obj_class.geometry_type)
-                    for new_geometry in new_geometries:
-                        new_figure = curr_figure.clone(video_object=new_objects[curr_figure.video_object._key], geometry=new_geometry)
-                        new_frame_figures.append(new_figure)
-            new_frame = sly.Frame(curr_frame.index, new_frame_figures)
-            frames.append(new_frame)
-
-        progress_items_cb(len(batch))
+        progress_items_cb(1)
 
     new_frames_collection = sly.FrameCollection(frames)
     new_objects = sly.VideoObjectCollection(list(new_objects.values()))
@@ -92,7 +115,7 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
     api.project.update_meta(dst_project.id, dst_meta.to_json())
 
     total_progress = api.project.get_images_count(src_project.id)
-    progress_videos_cb = ui.get_progress_cb(api, task_id, 2, "Convert video", total_progress)
+    progress_videos_cb = get_progress_cb(api, task_id, 2, "Convert video", total_progress)
 
     for ds_info in api.dataset.get_list(src_project.id):
         dst_dataset = api.dataset.create(dst_project.id, ds_info.name)
@@ -100,21 +123,14 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
         key_id_map = KeyIdMap()
         vid_infos_all = api.video.get_list(ds_info.id)
         for vid_info in vid_infos_all:
-            vid_name = vid_info.name
-            vid_id = vid_info.id
-            vid_hash = vid_info.hash
-
-            ann_info = api.video.annotation.download(vid_id)
+            ann_info = api.video.annotation.download(vid_info.id)
             ann = sly.VideoAnnotation.from_json(ann_info, src_meta, key_id_map)
             new_ann = convert_annotation(api, task_id, ann, dst_meta)
 
-            new_vid_info = api.video.upload_hash(dst_dataset.id, vid_name, vid_hash)
-            new_vid_id = new_vid_info.id
-            api.video.annotation.append(new_vid_id, new_ann, key_id_map=key_id_map)
+            new_vid_info = api.video.upload_hash(dst_dataset.id, vid_info.name, vid_info.hash)
+            api.video.annotation.append(new_vid_info.id, new_ann, key_id_map=key_id_map)
 
             progress_videos_cb(1)
-
-    api.task.set_field(task_id, "data.progress", 100)
 
     # to get correct "reference_image_url"
     res_project = api.project.get_info_by_id(dst_project.id)
@@ -146,14 +162,15 @@ def main():
     data["frameProgress"] = 0
     data["resultProject"] = ""
 
+    for i in range(1, 3):
+        data["progressName{}".format(i)] = None
+        data["currentProgressLabel{}".format(i)] = 0
+        data["totalProgressLabel{}".format(i)] = 0
+        data["currentProgress{}".format(i)] = 0
+        data["totalProgress{}".format(i)] = 0
+
     state["showWarningDialog"] = False
     state["newProjectName"] = None
-    # state["showFinishDialog"] = False
-
-    ui.init_context(data, g.TEAM_ID, g.WORKSPACE_ID)
-    ui.init_connection(data, state)
-    ui.init_options(data, state)
-    ui.init_progress(data, state)
 
     # Run application service
     g.my_app.run(data=data, state=state)
