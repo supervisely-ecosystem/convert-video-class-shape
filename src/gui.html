@@ -48,8 +48,10 @@
                     <a slot="title" target="_blank" :href="`/projects/${data.resultProjectId}/datasets`">{{data.resultProject}}</a>
                     <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
                 </sly-field>
-                New project name: {{data.resultProject}}
-                <el-progress v-if="data.started === true && data.progress !== 100" :percentage="data.progress"></el-progress>
+
+                <p v-if="data.started === false" class="card-text">Create output project: </p>
+
+                <el-progress v-if="data.started === true && data.progress !== 100" :percentage="data.frameProgress"></el-progress>
                 <el-button type="primary" @click="command('convert')" v-if="data.started === false">
                     <i class="zmdi zmdi-play" style="margin-right: 5px"></i> Run
                 </el-button>
