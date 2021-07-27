@@ -91,8 +91,8 @@
                     <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
                 </sly-field>
 
-                <sly-field  v-if="data.started === false" title="New project name:" description="If name of new project not specified, result project name will have original project name with (new shapes) suffix">
-                    <el-input v-if="data.started === false" v-model="state.newProjectName" placeholder="Input new project name"></el-input>
+                <sly-field  v-if="data.started === false" title="Result project name:">
+                    <el-input v-if="data.started === false" v-model="state.newProjectName" placeholder="Input new project name" value="state.newProjectName"></el-input>
                 </sly-field>
 
 
@@ -113,6 +113,7 @@
                 <el-button
                         type="primary"
                         v-if="data.started === false"
+                        :disabled="state.newProjectName.length === 0"
                         @click="data.started = true; command('convert')"
                 >
                     <i class="zmdi zmdi-play" style="margin-right: 5px"></i> Run

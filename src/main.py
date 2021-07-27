@@ -76,8 +76,6 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
     src_meta_json = api.project.get_meta(src_project.id)
     src_meta = sly.ProjectMeta.from_json(src_meta_json)
     new_project_name = state['newProjectName']
-    if not new_project_name:
-        new_project_name = src_project.name + "(new shapes)"
 
     new_classes = []
     need_action = False
@@ -170,7 +168,9 @@ def main():
         data["totalProgress{}".format(i)] = 0
 
     state["showWarningDialog"] = False
-    state["newProjectName"] = None
+
+    src_project_name = api.project.get_info_by_id(g.PROJECT_ID).name
+    state["newProjectName"] = src_project_name + "(new shapes)"
 
     # Run application service
     g.my_app.run(data=data, state=state)
