@@ -1,6 +1,5 @@
 <div align="center" markdown> 
-
-<img src="https://i.imgur.com/FTrBajv.png"/>
+<img src="https://i.imgur.com/uWw6Nez.png"/>
 
 # Convert Video Classes Shape
 
@@ -39,7 +38,6 @@ This app covers following transformations:
 **Notes:**
 
 - Your data is safe: app creates new project with modified figures and objects. The original project remains unchanged
-- Before converting `AnyShape` classes, you have to unpack it with another app - [Unpack Anyshape](https://github.com/supervisely-ecosystem/unpack-anyshape) 
 - Note: transformation from raster (bitmap) to vector (polygon) will result in huge number of points. App performs approximation to reduce the number. That can lead to slight loss of accuracy at borders. Special settings to control approximation will be released in next version.
 
 ## How To Run
