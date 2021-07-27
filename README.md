@@ -33,13 +33,11 @@ This app covers following transformations:
 - from `Polygon` to `Rectangle`, `Bitmap` and `AnyShape`
 - from `Polyline` to `Rectangle`, `Bitmap`, `Polygon`, `AnyShape`
 - from `Rectangle` to `Polygon`, `Bitmap` and `AnyShape`
-- from `Graph` (i.e. `Keypoints`) to `Rectangle` and `AnyShape`
 - from `Point` to `AnyShape`
-- `Cuboid`, `Cuboid3d`, `Pointcloud` (segmentation of point clouds), `Point3d` are not supported yet (send us a feature request if you need it)
+- `Cuboid`, `Cuboid3d`, `Pointcloud` (segmentation of point clouds), `Point3d`, `Graph` are not supported yet (send us a feature request if you need it)
 
 **Notes:**
 
-- Result project name = original name + "(new shapes)" suffix
 - Your data is safe: app creates new project with modified figures and objects. The original project remains unchanged
 - Before converting `AnyShape` classes, you have to unpack it with another app - [Unpack Anyshape](https://github.com/supervisely-ecosystem/unpack-anyshape) 
 - Note: transformation from raster (bitmap) to vector (polygon) will result in huge number of points. App performs approximation to reduce the number. That can lead to slight loss of accuracy at borders. Special settings to control approximation will be released in next version.
@@ -71,7 +69,7 @@ Press `Run` button. The progress bas will appear in `Output` section. Also you c
 
 <img src="https://i.imgur.com/kdYwkde.png" width="600"/>
 
-App creates new project and it will appear in `Output` section. Result project name = original name + "(new shapes)" suffix.
+App creates new project and it will appear in `Output` section.
 
 <img src="https://i.imgur.com/YjVtbYA.png" width="600"/>
 
