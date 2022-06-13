@@ -2,7 +2,8 @@
   "name": "Convert Video Class Shape",
   "type": "app",
   "categories": [
-    "transform"
+    "videos",
+    "annotation transformation"
   ],
   "description": "Converts shapes of classes on videos (e.g. polygon to bitmap) and all corresponding objects",
   "docker_image": "supervisely/base-py-sdk:6.1.92",
