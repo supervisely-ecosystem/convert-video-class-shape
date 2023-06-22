@@ -46,12 +46,12 @@ This app covers following transformations:
 
 Go to "Context Menu" (videos project) -> "Run App" -> "Transform" -> "Convert Video Class Shape"
 
-<img src="https://i.imgur.com/gqh7ORk.png" width="800"/>
+<img src="media/r1.png" width="800"/>
 
 ### Step 2:  Waiting until the app is started
 Once app is started, new task appear in workspace tasks. Wait message `Application is started ...` (1) and then press `Open` button (2).
 
-<img src="https://i.imgur.com/9f4v4KD.png"/>
+<img src="hmedia/r2.png"/>
 
 ### Step 3: Define transformations
 
@@ -59,17 +59,17 @@ App contains 3 sections: information about input project, information about outp
 
 Default `remain unchanged` option is selected and means that class and all its objects will be copied without modification to a new project. Dropdown lists only contain allowed shapes (see <a href="#Overview">Overview</a>), for example `Rectangle` can not be transformed to `Polyline` or `Point`. 
 
-<img src="https://i.imgur.com/rdj3OvN.png"/>
+<img src="media/r3.png"/>
 
 ### Step 4: Press RUN button and wait
 
 Press `Run` button. The progress bas will appear in `Output` section. Also you can monitor progress from tasks list of the current workspace.
 
-<img src="https://i.imgur.com/kdYwkde.png" width="600"/>
+<img src="media/r4.png" width="600"/>
 
 App creates new project and it will appear in `Output` section.
 
-<img src="https://i.imgur.com/YjVtbYA.png" width="600"/>
+<img src="media/r4a.png" width="600"/>
 
 ### Step 5: App shuts down automatically
 
