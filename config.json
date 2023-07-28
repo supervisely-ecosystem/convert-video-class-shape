@@ -1,26 +1,26 @@
 {
-  "name": "Convert Video Class Shape",
-  "type": "app",
-  "categories": [
-    "videos",
-    "annotation transformation",
-    "data operations"
-  ],
-  "description": "Converts shapes of classes on videos (e.g. polygon to bitmap) and all corresponding objects",
-  "docker_image": "supervisely/base-py-sdk:6.72.70",
-  "instance_version": "6.4.57",
-  "main_script": "src/main.py",
-  "gui_template": "src/gui.html",
-  "modal_template": "src/modal.html",
-  "task_location": "workspace_tasks",
-  "isolate": true,
-  "icon": "https://i.imgur.com/N2TmbHL.png",
-  "icon_background": "#FFFFFF",
-  "context_menu": {
-    "target": [
-      "videos_project"
+    "name": "Convert Video Class Shape",
+    "type": "app",
+    "categories": [
+        "videos",
+        "annotation transformation",
+        "data operations"
     ],
-    "context_category": "Transform"
-  },
-  "poster": "https://user-images.githubusercontent.com/106374579/183414846-10e2d52b-6e85-4f25-bc46-14fe045c5018.png"
+    "description": "Converts shapes of classes on videos (e.g. polygon to bitmap) and all corresponding objects",
+    "docker_image": "supervisely/data-operations:0.0.1",
+    "instance_version": "6.4.57",
+    "main_script": "src/main.py",
+    "gui_template": "src/gui.html",
+    "modal_template": "src/modal.html",
+    "task_location": "workspace_tasks",
+    "isolate": true,
+    "icon": "https://i.imgur.com/N2TmbHL.png",
+    "icon_background": "#FFFFFF",
+    "context_menu": {
+        "target": [
+            "videos_project"
+        ],
+        "context_category": "Transform"
+    },
+    "poster": "https://user-images.githubusercontent.com/106374579/183414846-10e2d52b-6e85-4f25-bc46-14fe045c5018.png"
 }
