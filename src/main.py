@@ -125,7 +125,7 @@ def convert(api: sly.Api, task_id, context, state, app_logger):
             ann = sly.VideoAnnotation.from_json(ann_info, src_meta, key_id_map)
             new_ann = convert_annotation(api, task_id, ann, dst_meta)
 
-            new_vid_info = api.video.upload_hash(dst_dataset.id, vid_info.name, vid_info.hash)
+            new_vid_info = api.video.upload_id(dst_dataset.id, vid_info.name, vid_info.id)
             api.video.annotation.append(new_vid_info.id, new_ann, key_id_map=key_id_map)
 
             progress_videos_cb(1)
