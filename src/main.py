@@ -1,7 +1,7 @@
 import globals as g
-import supervisely_lib as sly
-from supervisely_lib.video_annotation.key_id_map import KeyIdMap
-from supervisely_lib.annotation.json_geometries_map import GET_GEOMETRY_FROM_STR
+import supervisely as sly
+from supervisely.video_annotation.key_id_map import KeyIdMap
+from supervisely.annotation.json_geometries_map import GET_GEOMETRY_FROM_STR
 from functools import partial
 
 
